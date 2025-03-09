@@ -14,7 +14,7 @@ Route::prefix('whatsapp')->group(function () {
 
     Route::get('/webhook', function (Request $request) {
         if ($request->query('hub_mode') === 'subscribe' && 
-            $request->query('hub_verify_token') === env('WEBHOOK_VERIFY_TOKEN')) {
+            $request->query('hub_verify_token') === 'HAPPY') {
             return response($request->query('hub_challenge'));
         }
         return response()->json([], 400);
