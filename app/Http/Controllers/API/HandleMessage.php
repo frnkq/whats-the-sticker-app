@@ -23,7 +23,7 @@ class HandleMessage extends Controller
         $isSendingSticker = $messageType === 'sticker';
     
         if ($isLookingForSticker) {
-            \Log::info(json_encode(from). "---is looking for sticker");
+            \Log::info(json_encode($from). "---is looking for sticker");
             $tags = explode(' ', $message['text']['body'] ?? '');
             $stickers = searchSticker($from, $tags);
             
@@ -66,7 +66,7 @@ class HandleMessage extends Controller
         $message->message_id = $messageId;
         $message->tags = $tags;
         $message->from = $from;
-        WhatsappMessage::upsert($message, uniqueBy: ['message_id', 'sticker_id'], update: ['tags']);
+        WhatsappSticker::upsert($message, uniqueBy: ['message_id', 'sticker_id'], update: ['tags']);
     }
 
 
