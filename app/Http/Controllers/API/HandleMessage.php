@@ -33,7 +33,8 @@ class HandleMessage extends Controller
     
         if ($isAddingStickerTags) {
             $tags = explode(' ', $message['text']['body'] ?? '');
-            $stickerId = getStickerFromContext($contextId)->get('stickerId');
+            $sticker = WhatsappSticker::firstWhere('context_id', $contextId);
+            $stickerId = $sticker->sticker_id;
             addTagsToSticker($contextId, $tags);
         }
     
@@ -45,113 +46,37 @@ class HandleMessage extends Controller
     }
 
     function searchSticker($from, $tags) {
-        \Log::info("Searching stickers for $from with tags: " . implode(', ', $tags));
-        return [
-            ['from' => $from, 'stickerId' => '1002815198413407']
-        ];
+        //const stickers = (await searchDocs(from, tags));
+        //return stickers;
+
+        $results = WhatsappSticker::whereIn('tags', $tags)->get();
+
+        \Log::debug($results);
     }
     
     function sendMessage($to, $message) {
         \Log::info("Sending message to $to: " . json_encode($message));
     }
+  
     
-    function getStickerFromContext($contextId) {
-        \Log::info("Fetching sticker for context ID: $contextId");
-        return collect(['stickerId' => '123456789']);
-    }
-    
-    function addTagsToSticker($contextId, $tags) {
-        \Log::info("Adding tags to sticker $contextId: " . implode(', ', $tags));
+    function addTagsToSticker($context_id, $tags) {
+        $sticker = WhatsappSticker::firstWhere('context_id', $context_id);
+        $sticker->tags = tags;
+        $sticker->save();
     }
     
     function saveSticker($messageId, $from, $stickerId, $tags) {
-        \Log::info("Saving sticker $stickerId from $from with tags: " . implode(', ', $tags));
+        $message = new WhatsappSticker();
+        $message->sticker_id = $stickerId;
+        $message->message_id = $messageId;
+        $message->tags = $tags;
+        $message->from = $from;
+        WhatsappMessage::upsert($message, uniqueBy: ['message_id', 'sticker_id'], update: ['tags'])
     }
 
     
 }
 /*
-const { insertDoc, getDoc, addTagsToDoc, searchDocs } = require('./firestore.js');
-
-const addTagsToSticker = async function(id, tags){
-  addTagsToDoc(id, tags);
-};
-
-const saveSticker = async function(messageId, from, stickerId, tags){
-  insertDoc(messageId, from, stickerId, tags)
-};
-
-const getStickerFromContext = async function(contextId){
-  const sticker = await getDoc(contextId);
-  return sticker;
-};
-
-const searchSticker = async function(from, tags){
-  const stickers = (await searchDocs(from, tags));
-  return stickers;
-}
-
-=========================
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
-
-// Create a new client
-const firestore = admin.firestore();
-
-async function getDoc(id) {
-  const stickers = firestore.collection("stickers").doc(id);
-  const sticker = await stickers.get();
-  return sticker;
-}
-
-async function insertDoc(messageId, from, stickerId, tags) {
-  const document = firestore.doc(`stickers/${messageId}`);
-  document.set({
-    id: messageId,
-    stickerId,
-    from,
-  });
-}
-
-async function addTagsToDoc(id, tags) {
-  try {
-    const document = firestore.collection(`stickers`).doc(id);
-    await document.update({
-      tags: tags,
-    });
-    console.log(`${id} - updated - with: ${JSON.stringify(tags)}`);
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-async function searchDocs(from, tags) {
-  try {
-    const querySnapshot = await firestore
-      .collection('stickers')
-      .where('from', "==", from)
-      .where('tags', "array-contains-any", tags)
-      .get();
-
-    if (querySnapshot.empty) {
-      console.log("No matching documents found.");
-      return [];
-    }
-
-    const results = [];
-    querySnapshot.forEach((doc) => {
-      results.push({ id: doc.id, ...doc.data() });
-    });
-
-    return results;
-  } catch (err) {
-    console.error(err);
-  }
-}
-
-
 
 ===================================== meta proxy
 
