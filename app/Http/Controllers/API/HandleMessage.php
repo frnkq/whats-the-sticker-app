@@ -56,7 +56,7 @@ class HandleMessage extends Controller
 
     function addTagsToSticker($context_id, $tags) {
         $sticker = WhatsappSticker::firstWhere('context_id', $context_id);
-        $sticker->tags = tags;
+        $sticker->tags = implode(',', $tags);
         $sticker->save();
     }
     
