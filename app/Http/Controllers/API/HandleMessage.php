@@ -30,7 +30,7 @@ class HandleMessage extends Controller
             $stickers = $this->searchSticker($from, $tags);
             
             foreach ($stickers as $sticker) {
-                $this->sendMessage("541115" . substr($sticker['from'], -8), ['sticker' => $sticker['stickerId']]);
+                $this->sendMessage("541115" . substr($sticker->from, -8), $sticker->sticker_id);
             }
         }
     
@@ -84,7 +84,7 @@ class HandleMessage extends Controller
         if (isset($message['sticker'])) {
             $body['type'] = 'sticker';
             $body['sticker'] = [
-                'id' => $message['sticker_id']
+                'id' => $message
             ];
         }
 
