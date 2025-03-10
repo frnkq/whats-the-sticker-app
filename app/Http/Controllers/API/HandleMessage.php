@@ -27,7 +27,7 @@ class HandleMessage extends Controller
             $stickers = searchSticker($from, $tags);
             
             foreach ($stickers as $sticker) {
-                sendMessage("541115" . substr($sticker['from'], -8), ['sticker' => $sticker['stickerId']]);
+                $this->sendMessage("541115" . substr($sticker['from'], -8), ['sticker' => $sticker['stickerId']]);
             }
         }
     
@@ -35,13 +35,13 @@ class HandleMessage extends Controller
             $tags = explode(' ', $message['text']['body'] ?? '');
             $sticker = WhatsappSticker::firstWhere('context_id', $contextId);
             $stickerId = $sticker->sticker_id;
-            addTagsToSticker($contextId, $tags);
+            $this->addTagsToSticker($contextId, $tags);
         }
     
         if ($isSendingSticker) {
             \Log::info("a sticker message");
             $stickerId = $message['sticker']['id'] ?? null;
-            saveSticker($messageId, $from, $stickerId, []);
+            $this->saveSticker($messageId, $from, $stickerId, []);
         }
     }
 
@@ -84,7 +84,7 @@ class HandleMessage extends Controller
             ];
         }
 
-        sendRequest($body);
+        $this->sendRequest($body);
     }
 
     function sendRequest($body)
