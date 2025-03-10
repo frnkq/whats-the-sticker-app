@@ -84,7 +84,7 @@ class HandleMessage extends Controller
         if (isset($message['sticker'])) {
             $body['type'] = 'sticker';
             $body['sticker'] = [
-                'id' => $message['sticker']
+                'id' => $message['sticker_id']
             ];
         }
 
