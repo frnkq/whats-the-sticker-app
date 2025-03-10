@@ -22,7 +22,7 @@ class HandleMessage extends Controller
         $isSendingSticker = $messageType === 'sticker';
     
         if ($isLookingForSticker) {
-            \Log::info([$from]. "---is looking for sticker");
+            \Log::info($json_encode(from). "---is looking for sticker");
             $tags = explode(' ', $message['text']['body'] ?? '');
             $stickers = searchSticker($from, $tags);
             
