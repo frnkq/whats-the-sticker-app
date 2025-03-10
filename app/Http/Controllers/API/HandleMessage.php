@@ -25,6 +25,7 @@ class HandleMessage extends Controller
         if ($isLookingForSticker) {
             \Log::info(json_encode($from). "---is looking for sticker");
             $tags = explode(' ', $message['text']['body'] ?? '');
+            \Log::info("searching ". json_encode([$from, $tags]));
             $stickers = $this->searchSticker($from, $tags);
             
             foreach ($stickers as $sticker) {
