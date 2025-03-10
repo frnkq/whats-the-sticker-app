@@ -22,7 +22,7 @@ class HandleMessage extends Controller
         $isSendingSticker = $messageType === 'sticker';
     
         if ($isLookingForSticker) {
-            \Log::info([$from], "---is looking for sticker");
+            \Log::info([$from]. "---is looking for sticker");
             $tags = explode(' ', $message['text']['body'] ?? '');
             $stickers = searchSticker($from, $tags);
             
@@ -52,11 +52,7 @@ class HandleMessage extends Controller
         \Log::debug(json_encode($results));
     }
     
-    function sendMessage($to, $message) {
-        \Log::info("Sending message to $to: " . json_encode($message));
-    }
-  
-    
+
     function addTagsToSticker($context_id, $tags) {
         $sticker = WhatsappSticker::firstWhere('context_id', $context_id);
         $sticker->tags = tags;
@@ -71,6 +67,41 @@ class HandleMessage extends Controller
         $message->from = $from;
         WhatsappMessage::upsert($message, uniqueBy: ['message_id', 'sticker_id'], update: ['tags']);
     }
+
+
+    function sendMessage($to, $message)
+    {
+        \Log::info("Sending message to $to: " . json_encode($message));
+
+        $body = [
+            'to' => $to
+        ];
+
+        if (isset($message['sticker'])) {
+            $body['type'] = 'sticker';
+            $body['sticker'] = [
+                'id' => $message['sticker']
+            ];
+        }
+
+        sendRequest($body);
+    }
+
+    function sendRequest($body)
+    {
+        $response = Http::withHeaders([
+            'Authorization' => 'Bearer ' . env('WPP_API_TOKEN'),
+            'Content-Type' => 'application/json',
+        ])
+        ->post(env('WPP_API_ENDPOINT') . '/messages', [
+            'messaging_product' => 'whatsapp',
+            ...$body
+        ]);
+
+        $data = $response->json();
+        \Log::info('Response sending message', $data);
+    }
+
 
     
 }
