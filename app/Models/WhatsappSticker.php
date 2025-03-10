@@ -10,6 +10,7 @@ class WhatsappSticker extends Model
         'sticker_id',
         'context_id',
         'from',
+        'tags'
     ];
 }
 /*

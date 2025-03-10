@@ -46,12 +46,10 @@ class HandleMessage extends Controller
     }
 
     function searchSticker($from, $tags) {
-        //const stickers = (await searchDocs(from, tags));
-        //return stickers;
 
-        $results = WhatsappSticker::whereIn('tags', $tags)->get();
+        $results = WhatsappSticker::where('from', $from)::where('tags', 'like', '%'.$tags.'%')->get();
 
-        \Log::debug($results);
+        \Log::debug(json_encode($results));
     }
     
     function sendMessage($to, $message) {
