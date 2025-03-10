@@ -66,7 +66,7 @@ class HandleMessage extends Controller
         $message->message_id = $messageId;
         $message->tags = $tags;
         $message->from = $from;
-        WhatsappSticker::upsert($message, uniqueBy: ['message_id', 'sticker_id'], update: ['tags']);
+        WhatsappSticker::upsert([$message], uniqueBy: ['message_id', 'sticker_id'], update: ['tags']);
     }
 
 
