@@ -28,14 +28,13 @@ class HandleMessage extends Controller
             $tags = $message['text']['body'];
             \Log::info("searching ". json_encode([$from, $tags]));
             $stickers = $this->searchSticker($from, $tags);
-            
-            foreach ($stickers as $sticker) {
-                $this->sendMessage("541115" . substr($sticker->from, -8), $sticker->sticker_id);
+            foreach ($stickers as $message) {
+                $this->sendMessage("541115" . substr($message->from, -8), $message);
             }
         }
     
         if ($isAddingStickerTags) {
-            $tags = explode(' ', $message['text']['body'] ?? '');
+            $tags = $message['text']['body'] ?? '';
             $sticker = WhatsappSticker::firstWhere('context_id', $contextId);
             $stickerId = $sticker->sticker_id;
             $this->addTagsToSticker($contextId, $tags);
@@ -51,7 +50,6 @@ class HandleMessage extends Controller
     function searchSticker($from, $tags) {
 
         $results = WhatsappSticker::where('from', $from)->where('tags', 'like', '%'.$tags.'%')->get();
-
         \Log::debug(json_encode($results));
         return $results;
     }
@@ -78,15 +76,13 @@ class HandleMessage extends Controller
         \Log::info("Sending message to $to: " . json_encode($message));
 
         $body = [
-            'to' => $to
+            'messaging_product' => 'whatsapp',
+            'to' => $to,
+            'type' => 'sticker',
+            'sticker' => [
+                'id' => $message->sticker_id
+            ]
         ];
-
-        if (isset($message['sticker'])) {
-            $body['type'] = 'sticker';
-            $body['sticker'] = [
-                'id' => $message
-            ];
-        }
 
         $this->sendRequest($body);
     }
@@ -97,12 +93,10 @@ class HandleMessage extends Controller
             'Authorization' => 'Bearer ' . env('WPP_API_TOKEN'),
             'Content-Type' => 'application/json',
         ])
-        ->post(env('WPP_API_ENDPOINT') . '/messages', [
-            'messaging_product' => 'whatsapp',
-            ...$body
-        ]);
+        ->post(env('WPP_API_ENDPOINT') . '/messages', $body);
 
         $data = $response;
+        dd($data);
         \Log::info('Response sending message', $data);
     }
 
