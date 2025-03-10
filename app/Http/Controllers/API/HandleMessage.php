@@ -63,7 +63,7 @@ class HandleMessage extends Controller
     function saveSticker($messageId, $from, $stickerId, $tags) {
         $message = new WhatsappSticker();
         $message->sticker_id = $stickerId;
-        $message->message_id = $messageId;
+        $message->context_id = $messageId;
         $message->tags = implode(', ', $tags);
         $message->from = $from;
         $message->save();
