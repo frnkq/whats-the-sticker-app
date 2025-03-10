@@ -52,6 +52,7 @@ class HandleMessage extends Controller
         $results = WhatsappSticker::where('from', $from)->where('tags', 'like', '%'.$tags.'%')->get();
 
         \Log::debug(json_encode($results));
+        return $results;
     }
     
 
