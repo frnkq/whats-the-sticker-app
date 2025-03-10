@@ -102,7 +102,7 @@ class HandleMessage extends Controller
             ...$body
         ]);
 
-        $data = $response->json();
+        $data = $response;
         \Log::info('Response sending message', $data);
     }
 
